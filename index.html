@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nova AI</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="bg-anim">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <canvas id="particles"></canvas>
+    </div>
+
+    <header class="header">
+        <div class="logo">
+            <div class="logo-icon">
+                <svg viewBox="0 0 40 40" fill="none">
+                    <circle cx="20" cy="20" r="18" stroke="url(#grad)" stroke-width="2.5"/>
+                    <path d="M12 20 C12 14, 28 14, 28 20 C28 26, 12 26, 12 20" stroke="url(#grad)" stroke-width="2.5" fill="none"/>
+                    <circle cx="20" cy="20" r="3.5" fill="url(#grad)"/>
+                    <defs>
+                        <linearGradient id="grad" x1="0" y1="0" x2="40" y2="40">
+                            <stop offset="0%" stop-color="#00d4ff"/>
+                            <stop offset="100%" stop-color="#7b2fff"/>
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <span class="logo-text">Nova<span class="accent">AI</span></span>
+        </div>
+    </header>
+
+    <main class="main">
+        <section class="hero" id="hero">
+            <div class="hero-badge">
+                <span class="pulse-dot"></span>
+                Новое поколение ИИ
+            </div>
+            <h1 class="hero-title">
+                <span class="line">Думай <em class="gradient-text">глубже.</em></span>
+                <span class="line">Отвечай <em class="gradient-text">умнее.</em></span>
+            </h1>
+            <p class="hero-subtitle">
+                Nova AI — передовой ассистент с красивым интерфейсом и плавными анимациями.
+                Задавайте вопросы, получайте мгновенные ответы.
+            </p>
+            <div class="hero-actions">
+                <button class="btn btn-primary btn-lg" onclick="openChat()">
+                    <span class="btn-text">Открыть чат</span>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10h12m0 0l-4-4m4 4l-4 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+                <button class="btn btn-outline btn-lg">Смотреть демо</button>
+            </div>
+            <div class="hero-features">
+                <div class="feature-card" style="--delay: 0.1s">
+                    <div class="feature-icon">⚡</div>
+                    <div class="feature-text">
+                        <strong>Молниеносные ответы</strong>
+                        <span>Ответы за доли секунды</span>
+                    </div>
+                </div>
+                <div class="feature-card" style="--delay: 0.2s">
+                    <div class="feature-icon">🧠</div>
+                    <div class="feature-text">
+                        <strong>Глубокое мышление</strong>
+                        <span>Рассуждает как человек</span>
+                    </div>
+                </div>
+                <div class="feature-card" style="--delay: 0.3s">
+                    <div class="feature-icon">🎨</div>
+                    <div class="feature-text">
+                        <strong>Красивый интерфейс</strong>
+                        <span>Плавные 60fps анимации</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="chat-section" id="chat">
+            <div class="chat-window">
+                <div class="chat-header">
+                    <div class="chat-header-left">
+                        <div class="chat-avatar">
+                            <div class="avatar-ring"></div>
+                            <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="url(#grad2)" stroke-width="2"/><path d="M12 20 C12 14, 28 14, 28 20 C28 26, 12 26, 12 20" stroke="url(#grad2)" stroke-width="2" fill="none"/><circle cx="20" cy="20" r="3" fill="url(#grad2)"/><defs><linearGradient id="grad2" x1="0" y1="0" x2="40" y2="40"><stop offset="0%" stop-color="#00d4ff"/><stop offset="100%" stop-color="#7b2fff"/></linearGradient></defs></svg>
+                        </div>
+                        <div>
+                            <h3>Nova AI</h3>
+                            <span class="status"><span class="pulse-dot small"></span> Онлайн</span>
+                        </div>
+                    </div>
+                    <div class="chat-header-right">
+                        <button class="icon-btn" title="Очистить" onclick="clearChat()">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M8 6V4h8v2m-9 0v14a2 2 0 002 2h6a2 2 0 002-2V6"/></svg>
+                        </button>
+                        <button class="icon-btn" title="Настройки">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="messages">
+                    <div class="message ai">
+                        <div class="message-avatar">
+                            <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="url(#grad3)" stroke-width="2"/><path d="M12 20 C12 14, 28 14, 28 20 C28 26, 12 26, 12 20" stroke="url(#grad3)" stroke-width="2" fill="none"/><circle cx="20" cy="20" r="3" fill="url(#grad3)"/><defs><linearGradient id="grad3" x1="0" y1="0" x2="40" y2="40"><stop offset="0%" stop-color="#00d4ff"/><stop offset="100%" stop-color="#7b2fff"/></linearGradient></defs></svg>
+                        </div>
+                        <div class="message-bubble ai-bubble">
+                            Привет! Я <strong>Nova AI</strong> — умный ассистент. Задавайте любые вопросы: от кода до философии. Помогу с радостью!
+                            <div class="message-time">только что</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chat-suggestions">
+                    <button class="suggestion" onclick="sendSuggestion(this)">Объясни квантовую физику простыми словами</button>
+                    <button class="suggestion" onclick="sendSuggestion(this)">Напиши стихотворение о звёздах</button>
+                    <button class="suggestion" onclick="sendSuggestion(this)">Как создать красивый сайт?</button>
+                    <button class="suggestion" onclick="sendSuggestion(this)">Расскажи интересный факт</button>
+                </div>
+
+                <div class="chat-input-area">
+                    <div class="input-wrapper">
+                        <textarea id="userInput" placeholder="Спросите что-нибудь..." rows="1"></textarea>
+                        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 17l14-7L3 3v5l9 2-9 2v5z" fill="currentColor"/></svg>
+                        </button>
+                    </div>
+                    <div class="input-hint">Enter — отправить, Shift+Enter — новая строка</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
