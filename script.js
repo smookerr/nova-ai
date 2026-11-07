@@ -104,28 +104,46 @@ async function sendMessage() {
 
   const typing = showTyping();
 
+  const systemMsg = { role: 'system', content: 'Ты — Nova AI, дружелюбный умный ассистент. Отвечай на русском языке, кратко но содержательно. Используй markdown.' };
+  const apiMessages = [systemMsg, ...chatHistory];
+
+  let reply = null;
+
+  // 1) Попытка через свой сервер (локально / Vercel)
   try {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ messages: chatHistory })
     });
-
-    typing.remove();
-
-    if (!response.ok) {
-      const err = await response.json();
-      addMessage('Ошибка: ' + (err.error || 'Не удалось получить ответ'), false);
-      return;
+    if (response.ok) {
+      const data = await response.json();
+      if (data.reply) reply = data.reply;
     }
+  } catch (e) { /* сервера нет — идём дальше */ }
 
-    const data = await response.json();
-    chatHistory.push({ role: 'assistant', content: data.reply });
-    addMessage(data.reply, false);
+  // 2) Fallback: бесплатный Pollinations AI (работает из браузера, без ключа)
+  if (!reply) {
+    try {
+      const response = await fetch('https://text.pollinations.ai/openai', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'openai', messages: apiMessages })
+      });
+      if (response.ok) {
+        const data = await response.json();
+        reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+      }
+    } catch (e) { /* ignore */ }
+  }
 
-  } catch (err) {
-    typing.remove();
-    addMessage('Не удалось подключиться к серверу. Убедитесь, что сервер запущен: node server.js', false);
+  typing.remove();
+
+  if (reply) {
+    chatHistory.push({ role: 'assistant', content: reply });
+    addMessage(reply, false);
+  } else {
+    addMessage('Не удалось получить ответ. Попробуйте ещё раз.', false);
   }
 }
 
