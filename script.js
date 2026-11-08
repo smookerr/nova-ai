@@ -295,3 +295,76 @@ document.querySelectorAll('.nav-link').forEach(function(link) {
     link.classList.add('active');
   });
 });
+
+// ——— Перетаскивание окна чата за шапку ———
+(function() {
+  const chatWindow = document.querySelector('.chat-window');
+  const header = document.querySelector('.chat-header');
+  if (!chatWindow || !header) return;
+
+  let dragging = false;
+  let offsetX = 0, offsetY = 0;
+  let placeholder = null;
+
+  header.addEventListener('pointerdown', function(e) {
+    // кнопки в шапке не начинают перетаскивание
+    if (e.target.closest('.icon-btn')) return;
+    if (e.button !== undefined && e.button !== 0) return;
+
+    const rect = chatWindow.getBoundingClientRect();
+
+    if (!chatWindow.classList.contains('floating')) {
+      // заглушка на месте окна, чтобы не схлопывалась секция
+      placeholder = document.createElement('div');
+      placeholder.className = 'chat-placeholder';
+      placeholder.style.height = rect.height + 'px';
+      placeholder.style.width = rect.width + 'px';
+      chatWindow.parentNode.insertBefore(placeholder, chatWindow);
+
+      chatWindow.classList.add('floating');
+      chatWindow.style.position = 'fixed';
+      chatWindow.style.left = rect.left + 'px';
+      chatWindow.style.top = rect.top + 'px';
+      chatWindow.style.width = rect.width + 'px';
+      chatWindow.style.margin = '0';
+      chatWindow.style.zIndex = '1500';
+    }
+
+    const r = chatWindow.getBoundingClientRect();
+    offsetX = e.clientX - r.left;
+    offsetY = e.clientY - r.top;
+
+    dragging = true;
+    chatWindow.classList.add('dragging');
+    try { header.setPointerCapture(e.pointerId); } catch (err) {}
+    e.preventDefault();
+  });
+
+  header.addEventListener('pointermove', function(e) {
+    if (!dragging) return;
+    const w = chatWindow.offsetWidth;
+    let x = e.clientX - offsetX;
+    let y = e.clientY - offsetY;
+    // держим в пределах экрана (шапка всегда достижима)
+    x = Math.min(Math.max(x, -w + 140), window.innerWidth - 140);
+    y = Math.min(Math.max(y, 0), window.innerHeight - 40);
+    chatWindow.style.left = x + 'px';
+    chatWindow.style.top = y + 'px';
+  });
+
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false;
+    chatWindow.classList.remove('dragging');
+  }
+  header.addEventListener('pointerup', endDrag);
+  header.addEventListener('pointercancel', endDrag);
+
+  // двойной клик по шапке — вернуть окно на место
+  header.addEventListener('dblclick', function(e) {
+    if (e.target.closest('.icon-btn')) return;
+    chatWindow.classList.remove('floating', 'dragging');
+    chatWindow.removeAttribute('style');
+    if (placeholder) { placeholder.remove(); placeholder = null; }
+  });
+})();
