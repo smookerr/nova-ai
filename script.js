@@ -1,3 +1,38 @@
+// ——— Приветственный оверлей ———
+(function() {
+  const overlay = document.getElementById('welcomeOverlay');
+  const card = document.getElementById('welcomeCard');
+  if (!overlay || !card) return;
+
+  document.body.classList.add('locked');
+
+  function close() {
+    overlay.classList.add('hide');
+    document.body.classList.remove('locked');
+    setTimeout(function() { overlay.remove(); }, 700);
+  }
+
+  // клик по карточке — закрыть и увести в чат
+  card.addEventListener('click', function() {
+    close();
+    setTimeout(function() {
+      const chat = document.getElementById('chat');
+      if (chat) {
+        chat.scrollIntoView({ behavior: 'smooth' });
+        setTimeout(function() {
+          const inp = document.getElementById('userInput');
+          if (inp) inp.focus();
+        }, 800);
+      }
+    }, 350);
+  });
+
+  // Escape тоже закрывает
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') close();
+  });
+})();
+
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
 let particles = [];
