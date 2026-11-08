@@ -109,7 +109,7 @@ async function sendMessage() {
 
   let reply = null;
 
-  // 1) Попытка через свой сервер (локально / Vercel)
+  // 1) Свой сервер (локально / Vercel) — бесплатный DeepSeek через FreeDeepseekAPI
   try {
     const response = await fetch('/api/chat', {
       method: 'POST',
@@ -122,17 +122,32 @@ async function sendMessage() {
     }
   } catch (e) { /* сервера нет — идём дальше */ }
 
-  // 2) Fallback: бесплатный Pollinations AI (работает из браузера, без ключа)
+  // 2) Pollinations AI из браузера (без ключа) — с повторами
+  if (!reply) {
+    for (let attempt = 0; attempt < 3 && !reply; attempt++) {
+      try {
+        const response = await fetch('https://text.pollinations.ai/openai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model: 'openai', messages: apiMessages })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+        }
+      } catch (e) { /* retry */ }
+      if (!reply) await new Promise(r => setTimeout(r, 1200));
+    }
+  }
+
+  // 3) Простой GET-эндпоинт Pollinations (последний шанс)
   if (!reply) {
     try {
-      const response = await fetch('https://text.pollinations.ai/openai', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ model: 'openai', messages: apiMessages })
-      });
+      const lastMsg = encodeURIComponent('Ты — Nova AI. Отвечай на русском. ' + chatHistory[chatHistory.length - 1].content);
+      const response = await fetch('https://text.pollinations.ai/' + lastMsg);
       if (response.ok) {
-        const data = await response.json();
-        reply = data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+        const t = await response.text();
+        if (t && t.length > 0) reply = t;
       }
     } catch (e) { /* ignore */ }
   }
@@ -143,7 +158,7 @@ async function sendMessage() {
     chatHistory.push({ role: 'assistant', content: reply });
     addMessage(reply, false);
   } else {
-    addMessage('Не удалось получить ответ. Попробуйте ещё раз.', false);
+    addMessage('Сервис временно перегружен. Попробуйте ещё раз через минуту.', false);
   }
 }
 
