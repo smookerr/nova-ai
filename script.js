@@ -78,6 +78,7 @@ function addMessage(text, isUser) {
   }
 
   messagesEl.appendChild(msg);
+  renderMaths(msg);
   messagesEl.scrollTop = messagesEl.scrollHeight;
   msgCount++;
   return msg;
@@ -191,8 +192,19 @@ function escapeHtml(t) {
   return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-function formatText(t) {
-  return escapeHtml(t)
+function formatText(raw) {
+  // 1) Извлекаем LaTeX-формулы до экранирования, чтобы KaTeX получил чистый TeX
+  const math = [];
+  let t = raw;
+  // блочные формулы \[...\] и $$...$$
+  t = t.replace(/\[([\s\S]*?)\\\]/g, function(m, tex) { math.push({ tex: tex.trim(), display: true }); return '\u0000' + (math.length - 1) + '\u0000'; });
+  t = t.replace(/\$\$([\s\S]*?)\$\$/g, function(m, tex) { math.push({ tex: tex.trim(), display: true }); return '\u0000' + (math.length - 1) + '\u0000'; });
+  // строчные \(...\) и $...$
+  t = t.replace(/\\\(([\s\S]*?)\\\)/g, function(m, tex) { math.push({ tex: tex.trim(), display: false }); return '\u0000' + (math.length - 1) + '\u0000'; });
+  t = t.replace(/\$([^$\n]+)\$/g, function(m, tex) { math.push({ tex: tex.trim(), display: false }); return '\u0000' + (math.length - 1) + '\u0000'; });
+
+  // 2) Обычное форматирование остального текста
+  t = escapeHtml(t)
     .replace(/```([\s\S]*?)```/g, '<pre style="background:rgba(0,0,0,.3);padding:.8rem;border-radius:8px;overflow-x:auto;margin:.5rem 0"><code>$1</code></pre>')
     .replace(/`([^`]+)`/g, '<code style="background:rgba(0,212,255,.1);padding:.15rem .4rem;border-radius:4px;color:#00d4ff">$1</code>')
     .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
@@ -201,6 +213,31 @@ function formatText(t) {
     .replace(/^## (.*$)/gm, '<h3 style="margin:.6rem 0 .4rem;color:#00d4ff">$1</h3>')
     .replace(/^# (.*$)/gm, '<h3 style="margin:.6rem 0 .4rem;color:#00d4ff">$1</h3>')
     .replace(/\n/g, '<br>');
+
+  // 3) Возвращаем формулы как элементы для KaTeX
+  t = t.replace(/\u0000(\d+)\u0000/g, function(m, i) {
+    const o = math[+i];
+    const esc = o.tex.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const cls = o.display ? 'math-block' : 'math-inline';
+    return '<span class="' + cls + '" data-display="' + (o.display ? 1 : 0) + '" data-tex="' + esc + '"></span>';
+  });
+
+  return t;
+}
+
+// Рендеринг формул через KaTeX (с ожиданием загрузки библиотеки)
+function renderMaths(root) {
+  if (!window.katex) { setTimeout(function() { renderMaths(root); }, 300); return; }
+  const els = root.querySelectorAll('.math-block,.math-inline');
+  els.forEach(function(el) {
+    if (el.dataset.done) return;
+    try {
+      katex.render(el.dataset.tex, el, { displayMode: el.dataset.display === '1', throwOnError: false });
+      el.dataset.done = '1';
+    } catch (e) {
+      el.textContent = el.dataset.tex;
+    }
+  });
 }
 
 let ticking = false;

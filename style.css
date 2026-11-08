@@ -101,6 +101,8 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
 .send-btn:active { transform:scale(.95); }
 .input-hint { text-align:center; font-size:.72rem; color:var(--muted); margin-top:.6rem; }
 .footer { text-align:center; padding:2rem; color:var(--muted); font-size:.85rem; }
+.math-block { display:block; margin:.7rem 0; overflow-x:auto; padding:.4rem 0; font-size:1.05em; }
+.math-inline { display:inline-block; margin:0 .15rem; }
 @media (max-width:768px) {
   .header { padding:1rem 1.2rem; }
   .nav { display:none; }
