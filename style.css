@@ -158,6 +158,33 @@ body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--tex
     filter: hue-rotate(180deg);
   }
 }
+
+/* ——— Зеркальный комплект: сверху вниз, крупнее, цвета сайта ——— */
+.rings-container.mirror {
+  top: -25%;
+}
+.rings-container.mirror .ring {
+  width: calc(var(--i) * 4vmin);          /* крупнее исходных (2.5vmin) */
+  border: 1.1vmin solid rgb(123, 47, 255); /* фирменный purple */
+  box-shadow: 0 0 22px rgba(123,47,255,.55), inset 0 0 22px rgba(123,47,255,.4);
+  opacity: .4;
+  /* каскад в обратном порядке */
+  animation: ring-move-down 3.5s ease-in-out calc((13 - var(--i)) * 0.1s) infinite;
+}
+.rings-container.mirror .ring:nth-child(even) {
+  border-color: rgb(255, 61, 154);        /* фирменный pink */
+  box-shadow: 0 0 22px rgba(255,61,154,.5), inset 0 0 22px rgba(255,61,154,.38);
+}
+@keyframes ring-move-down {
+  0%, 100% {
+    transform: rotateX(70deg) translateZ(50px) translateY(-45vmin);
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    transform: rotateX(70deg) translateZ(50px) translateY(0);
+    filter: hue-rotate(-90deg);
+  }
+}
 .blob-2 { width: 500px; height: 500px; background: #7b2fff; bottom: -150px; right: -100px; animation-delay: -7s; }
 .blob-3 { width: 400px; height: 400px; background: #ff3d9a; top: 40%; left: 60%; animation-delay: -14s; }
 @keyframes float { 0%,100%{transform:translate(0,0) scale(1)} 25%{transform:translate(60px,-40px) scale(1.1)} 50%{transform:translate(-40px,60px) scale(.9)} 75%{transform:translate(40px,40px) scale(1.05)} }
